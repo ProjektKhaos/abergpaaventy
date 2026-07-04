@@ -2,6 +2,7 @@
 
 # Local/server-only configuration with database credentials
 app/config.php
+abergpaaventyr_private/
 .env
 .env.*
 !.env.example
@@ -32,6 +33,7 @@ assets/img/*
 *.log
 *.tmp
 *.bak
+*.zip
 *.swp
 *.swo
 .DS_Store
