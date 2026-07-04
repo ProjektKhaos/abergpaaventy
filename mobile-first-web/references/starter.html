@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <title>Page title</title>
+
+  <style>
+    /* --- Reset & base ----------------------------------------------------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    img, picture, video, canvas, svg { display: block; max-width: 100%; height: auto; }
+    input, button, textarea, select { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+
+    /* iOS will zoom on focus if input font-size < 16px. Keep it 16px+. */
+    input, textarea, select { font-size: 1rem; }
+
+    /* --- Design tokens ---------------------------------------------------- */
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --ink: #0f172a;
+      --ink-muted: #475569;
+      --accent: #2563eb;
+      --border: #e2e8f0;
+
+      --radius: 12px;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+
+      --space-1: 0.5rem;
+      --space-2: 1rem;
+      --space-3: 1.5rem;
+      --space-4: 2rem;
+      --space-5: 3rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b1220;
+        --surface: #111a2e;
+        --ink: #e2e8f0;
+        --ink-muted: #94a3b8;
+        --border: #1e293b;
+      }
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                   "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      min-height: 100svh;
+    }
+
+    /* --- Layout primitives ----------------------------------------------- */
+    .container {
+      width: 100%;
+      max-width: 72rem;
+      margin-inline: auto;
+      padding-inline: var(--space-2);
+    }
+    @media (min-width: 900px) {
+      .container { padding-inline: var(--space-3); }
+    }
+
+    .stack > * + * { margin-top: var(--space-2); }
+    .stack-lg > * + * { margin-top: var(--space-3); }
+
+    /* Cards reflow: 1 col on phone, more as space allows. */
+    .grid-cards {
+      display: grid;
+      gap: var(--space-2);
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    }
+
+    /* --- Typography ------------------------------------------------------- */
+    h1, h2, h3 { line-height: 1.2; margin: 0 0 var(--space-2); }
+    h1 { font-size: clamp(1.75rem, 4vw + 1rem, 2.75rem); }
+    h2 { font-size: clamp(1.35rem, 2.5vw + 1rem, 2rem); }
+    h3 { font-size: clamp(1.15rem, 1.5vw + 1rem, 1.5rem); }
+    p  { margin: 0 0 var(--space-2); max-width: 65ch; }
+    .muted { color: var(--ink-muted); }
+
+    /* --- Header ----------------------------------------------------------- */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding-top: max(var(--space-1), env(safe-area-inset-top));
+      padding-bottom: var(--space-1);
+      padding-inline: max(var(--space-2),
+                          env(safe-area-inset-left),
+                          env(safe-area-inset-right));
+    }
+    .site-header__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-2);
+      max-width: 72rem;
+      margin-inline: auto;
+    }
+    .brand { font-weight: 700; font-size: 1.125rem; text-decoration: none; }
+
+    /* --- Buttons & tap targets ------------------------------------------- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 44px;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform 0.05s ease, filter 0.15s ease;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn--ghost {
+      background: transparent;
+      color: var(--ink);
+      border-color: var(--border);
+    }
+    .icon-btn {
+      min-width: 44px; min-height: 44px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: transparent; border: 0; border-radius: var(--radius);
+      color: inherit;
+    }
+
+    /* Always-visible focus ring (don't depend on hover). */
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: var(--radius);
+    }
+
+    /* --- Cards ------------------------------------------------------------ */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-2);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* --- Forms ------------------------------------------------------------ */
+    .field { display: block; }
+    .field + .field { margin-top: var(--space-2); }
+    .label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .input, .textarea, .select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--ink);
+    }
+    .input:focus, .textarea:focus, .select:focus {
+      border-color: var(--accent);
+      outline: 0;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+    }
+
+    /* --- Hover scoping --------------------------------------------------- */
+    @media (hover: hover) {
+      .btn:hover { filter: brightness(1.05); }
+      .btn--ghost:hover { background: var(--border); }
+      a:hover { text-decoration: underline; }
+    }
+
+    /* --- Safe-area aware footer (or bottom nav slot) --------------------- */
+    .footer-spacer { padding-bottom: max(var(--space-3), env(safe-area-inset-bottom)); }
+
+    /* --- Utility: avoid horizontal scroll caused by long content --------- */
+    .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a href="/" class="brand">Brand</a>
+      <button class="icon-btn" aria-label="Open menu">
+        <!-- Replace with an icon. min 44x44 hit area is set above. -->
+        ☰
+      </button>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: var(--space-3);">
+    <section class="stack-lg">
+      <div>
+        <h1>Hello, phone first</h1>
+        <p class="muted">
+          This page is built mobile-first. Resize the window to 360px wide —
+          nothing should overflow horizontally.
+        </p>
+        <div style="display: flex; gap: var(--space-1); flex-wrap: wrap;">
+          <a href="#" class="btn">Primary action</a>
+          <a href="#" class="btn btn--ghost">Secondary</a>
+        </div>
+      </div>
+
+      <section>
+        <h2>Cards reflow automatically</h2>
+        <div class="grid-cards">
+          <article class="card">
+            <h3>One column on phone</h3>
+            <p class="muted">Two or three on bigger screens — no media queries needed.</p>
+          </article>
+          <article class="card">
+            <h3>Touch targets ≥ 44px</h3>
+            <p class="muted">Every button hits the minimum tap size.</p>
+          </article>
+          <article class="card">
+            <h3>Inputs at 16px</h3>
+            <p class="muted">No surprise zoom on iOS Safari when you tap a field.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2>A form that respects the phone keyboard</h2>
+        <form class="stack card" onsubmit="event.preventDefault();">
+          <div class="field">
+            <label class="label" for="name">Name</label>
+            <input class="input" id="name" name="name" type="text" autocomplete="name">
+          </div>
+          <div class="field">
+            <label class="label" for="email">Email</label>
+            <input class="input" id="email" name="email" type="email" autocomplete="email" inputmode="email">
+          </div>
+          <div class="field">
+            <label class="label" for="phone">Phone</label>
+            <input class="input" id="phone" name="phone" type="tel" autocomplete="tel">
+          </div>
+          <div class="field">
+            <label class="label" for="qty">Quantity</label>
+            <input class="input" id="qty" name="qty" type="text" inputmode="numeric" pattern="[0-9]*">
+          </div>
+          <button class="btn" type="submit">Submit</button>
+        </form>
+      </section>
+    </section>
+  </main>
+
+  <div class="footer-spacer"></div>
+</body>
+</html>

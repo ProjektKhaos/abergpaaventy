@@ -1,0 +1,9 @@
+# uploads/.htaccess – hindrar PHP-körning i uploads-mappen Ⓐ Style
+# Säkerhetskrav: uppladdade filer får aldrig köras som PHP
+
+php_flag engine off
+Options -Indexes
+
+<FilesMatch "\.(php|php3|php4|php5|phtml|phar)$">
+  Require all denied
+</FilesMatch>
