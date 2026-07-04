@@ -47,3 +47,6 @@ node_modules/
 dist/
 build/
 .cache/
+
+# Local documentation/archive folder, not part of repo
+docs/
