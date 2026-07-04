@@ -1,5 +1,7 @@
 # Åberg På Äventyr
 
+![Åberg På Äventyr](assets/img/studera_fb_og.png)
+
 Publik PHP-sajt för **Åberg På Äventyr** på `https://abergpaaventyr.se`.
 
 ## Repo
