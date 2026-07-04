@@ -6,11 +6,6 @@ Publik PHP-sajt för **Åberg På Äventyr** på `https://abergpaaventyr.se`.
 
 GitHub: `https://github.com/ProjektKhaos/abergpaaventy.git`
 
-Aktiv serverkatalog:
-
-```text
-/var/www/abergpaaventyr
-```
 
 ## Lokal konfiguration
 
