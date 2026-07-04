@@ -18,23 +18,28 @@ if (!$location) {
 $post_model = new Post($pdo);
 $posts      = $post_model->get_by_location($location);
 $title      = $location;
+
+$pageTitle       = $title . ' - Hasse i Thailand';
+$pageDescription = 'Inlägg från ' . $location . ' under Hasses tid i Thailand.';
+$canonicalUrl    = query_url('location.php', ['location' => $location]);
+$ogImageUrl      = asset_url('assets/img/studera_fb_og.png');
 ?>
 <!doctype html>
 <html lang="sv">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title><?= e($title) ?> - Hasse i Thailand</title>
-  <link rel="stylesheet" href="<?= asset_url('assets/style.css') ?>">
+  <?php public_meta($pageTitle, $pageDescription, $canonicalUrl, $ogImageUrl); ?>
+  <link rel="stylesheet" href="<?= e(asset_url('assets/style.css')) ?>">
 </head>
 <body>
   <?php public_header('home'); ?>
 
-  <main class="posts-section">
+  <main id="main-content" class="posts-section">
     <div class="container">
 
-      <p style="margin-bottom:0.5rem;">
-        <a href="<?= url() ?>" style="color:var(--ink-muted);font-size:0.9rem;">← Alla inlägg</a>
+      <p class="back-link-row">
+        <a href="<?= e(url()) ?>" class="back-link">← Alla inlägg</a>
       </p>
       <h1><?= e($title) ?></h1>
 
@@ -49,11 +54,11 @@ $title      = $location;
           <article class="post-card">
             <?php if ($p['cover_file']): ?>
             <img class="post-card__image"
-                 src="<?= UPLOAD_URL . e($p['cover_file']) ?>"
+                 src="<?= e(upload_url($p['cover_file'])) ?>"
                  alt="<?= e($p['title']) ?>"
                  loading="lazy">
             <?php else: ?>
-            <div class="post-card__image" style="display:flex;align-items:center;justify-content:center;font-size:2.5rem;">📷</div>
+            <div class="post-card__image post-card__image--empty">📷</div>
             <?php endif; ?>
 
             <div class="post-card__body">
@@ -63,17 +68,17 @@ $title      = $location;
                 <?php endif; ?>
                 <?php if ($p['location']): ?>
                   <span class="sep">•</span>
-                  <a href="<?= url('location.php?location=' . urlencode($p['location'])) ?>" class="location-badge"><?= e($p['location']) ?></a>
+                  <a href="<?= e(query_url('location.php', ['location' => $p['location']])) ?>" class="location-badge"><?= e($p['location']) ?></a>
                 <?php endif; ?>
               </div>
               <h2 class="post-card__title">
-                <a href="<?= url('post.php?slug=' . e($p['slug'])) ?>"><?= e($p['title']) ?></a>
+                <a href="<?= e(query_url('post.php', ['slug' => $p['slug']])) ?>"><?= e($p['title']) ?></a>
               </h2>
               <?php if ($p['intro']): ?>
               <p class="post-card__intro"><?= e($p['intro']) ?></p>
               <?php endif; ?>
               <div class="post-card__footer">
-                <a href="<?= url('post.php?slug=' . e($p['slug'])) ?>" class="btn btn--ghost btn--sm">Läs mer →</a>
+                <a href="<?= e(query_url('post.php', ['slug' => $p['slug']])) ?>" class="btn btn--ghost btn--sm">Läs mer →</a>
               </div>
             </div>
           </article>
@@ -85,6 +90,6 @@ $title      = $location;
   </main>
   <?php public_footer(); ?>
 
-  <script src="<?= url('assets/script.js') ?>"></script>
+  <script src="<?= e(asset_url('assets/script.js')) ?>" defer></script>
 </body>
 </html>

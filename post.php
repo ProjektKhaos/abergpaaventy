@@ -27,33 +27,45 @@ if (!$post) {
     $tags       = $post_model->get_tags($post['id']);
     $title      = $post['title'];
 }
+
+$pageTitle       = $title . ' - Hasse i Thailand';
+$pageDescription = $post && $post['intro']
+    ? $post['intro']
+    : ($post ? 'Läs inlägget ' . $post['title'] . ' från Hasses tid i Thailand.' : 'Inlägget hittades inte.');
+$canonicalUrl    = $post
+    ? query_url('post.php', ['slug' => $post['slug']])
+    : query_url('post.php', ['slug' => $slug]);
+$ogImageUrl      = $post && $post['cover_file']
+    ? upload_url($post['cover_file'])
+    : asset_url('assets/img/studera_fb_og.png');
+$ogType          = $post ? 'article' : 'website';
 ?>
 <!doctype html>
 <html lang="sv">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title><?= e($title) ?> - Hasse i Thailand</title>
-  <link rel="stylesheet" href="<?= asset_url('assets/style.css') ?>">
+  <?php public_meta($pageTitle, $pageDescription, $canonicalUrl, $ogImageUrl, $ogType); ?>
+  <link rel="stylesheet" href="<?= e(asset_url('assets/style.css')) ?>">
 </head>
 <body>
   <?php public_header('post'); ?>
 
-  <main class="post-page">
+  <main id="main-content" class="post-page">
     <div class="container">
 
       <?php if (!$post): ?>
         <div class="empty-state">
           <div class="empty-state__icon">🔍</div>
           <h1>Inlägg hittades inte</h1>
-          <p><a href="<?= url() ?>" class="btn btn--primary">← Tillbaka till startsidan</a></p>
+          <p><a href="<?= e(url()) ?>" class="btn btn--primary">← Tillbaka till startsidan</a></p>
         </div>
 
       <?php else: ?>
 
         <!-- Navigering tillbaka -->
-        <p style="margin-bottom:var(--s2);">
-          <a href="<?= url() ?>" style="color:var(--ink-muted);font-size:0.9rem;">← Alla inlägg</a>
+        <p class="back-link-row back-link-row--loose">
+          <a href="<?= e(url()) ?>" class="back-link">← Alla inlägg</a>
         </p>
 
         <!-- Header -->
@@ -64,14 +76,14 @@ if (!$post) {
             <?php endif; ?>
             <?php if ($post['location']): ?>
               <span>•</span>
-              <a href="<?= url('location.php?location=' . urlencode($post['location'])) ?>" class="location-badge"><?= e($post['location']) ?></a>
+              <a href="<?= e(query_url('location.php', ['location' => $post['location']])) ?>" class="location-badge"><?= e($post['location']) ?></a>
             <?php endif; ?>
           </div>
 
           <h1><?= e($post['title']) ?></h1>
 
           <?php if ($post['intro']): ?>
-          <p style="font-size:1.1rem;color:var(--ink-mid);line-height:1.65;margin-top:var(--s1);">
+          <p class="post-intro">
             <?= e($post['intro']) ?>
           </p>
           <?php endif; ?>
@@ -81,7 +93,7 @@ if (!$post) {
         <?php if ($post['cover_file']): ?>
         <img
           class="post-page__cover"
-          src="<?= UPLOAD_URL . e($post['cover_file']) ?>"
+          src="<?= e(upload_url($post['cover_file'])) ?>"
           alt="<?= e($post['title']) ?>"
           loading="eager"
         >
@@ -96,13 +108,13 @@ if (!$post) {
 
         <!-- Bildgalleri -->
         <?php if (!empty($gallery)): ?>
-        <section style="margin-top:var(--s4);">
+        <section class="section-spacer">
           <p class="section-title">Bilder från inlägget</p>
           <div class="gallery-grid">
             <?php foreach ($gallery as $img): ?>
-            <a href="<?= UPLOAD_URL . e($img['file_name']) ?>" class="gallery-item" data-lightbox>
+            <a href="<?= e(upload_url($img['file_name'])) ?>" class="gallery-item" data-lightbox>
               <img
-                src="<?= UPLOAD_URL . e($img['file_name']) ?>"
+                src="<?= e(upload_url($img['file_name'])) ?>"
                 alt="<?= e($img['alt_text'] ?: $post['title']) ?>"
                 loading="lazy"
               >
@@ -117,12 +129,11 @@ if (!$post) {
 
         <!-- Kategorier & taggar -->
         <?php if (!empty($categories) || !empty($tags)): ?>
-        <div style="margin-top:var(--s3);border-top:1px solid var(--border);padding-top:var(--s2);">
+        <div class="post-taxonomy">
           <?php if (!empty($categories)): ?>
-          <div class="tags" style="margin-bottom:var(--s1);">
+          <div class="tags tags--compact">
             <?php foreach ($categories as $cat): ?>
-            <a href="<?= url('category.php?slug=' . e($cat['slug'])) ?>"
-               style="background:var(--accent-light);color:var(--accent-dark);"
+            <a href="<?= e(query_url('category.php', ['slug' => $cat['slug']])) ?>"
                class="tag">
               <?= e($cat['name']) ?>
             </a>
@@ -141,8 +152,8 @@ if (!$post) {
         <?php endif; ?>
 
         <!-- Tillbaka-knapp -->
-        <div style="margin-top:var(--s4);">
-          <a href="<?= url() ?>" class="btn btn--ghost">← Fler inlägg</a>
+        <div class="section-actions section-actions--large">
+          <a href="<?= e(url()) ?>" class="btn btn--ghost">← Fler inlägg</a>
         </div>
 
       <?php endif; ?>
@@ -151,6 +162,6 @@ if (!$post) {
   </main>
   <?php public_footer(); ?>
 
-  <script src="<?= url('assets/script.js') ?>"></script>
+  <script src="<?= e(asset_url('assets/script.js')) ?>" defer></script>
 </body>
 </html>

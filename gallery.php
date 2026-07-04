@@ -10,24 +10,29 @@ require_once __DIR__ . '/app/Media.php';
 
 $media_model = new Media($pdo);
 $images      = $media_model->get_gallery_images(80);
+
+$pageTitle       = 'Foton - Hasse i Thailand';
+$pageDescription = 'Fotogalleri med bilder från Hasses tid i Thailand.';
+$canonicalUrl    = url('gallery.php');
+$ogImageUrl      = asset_url('assets/img/studera_fb_og.png');
 ?>
 <!doctype html>
 <html lang="sv">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Foton - Hasse i Thailand</title>
-  <link rel="stylesheet" href="<?= asset_url('assets/style.css') ?>">
+  <?php public_meta($pageTitle, $pageDescription, $canonicalUrl, $ogImageUrl); ?>
+  <link rel="stylesheet" href="<?= e(asset_url('assets/style.css')) ?>">
 </head>
 <body>
   <?php public_header('gallery'); ?>
 
-  <main class="posts-section">
+  <main id="main-content" class="posts-section">
     <div class="container">
 
       <p class="kicker">Galleri</p>
       <h1>Fotogalleri</h1>
-      <p style="color:var(--ink-muted);margin-bottom:var(--s3);position:relative;z-index:1;">
+      <p class="page-intro">
         Bilder från Thailand – klicka på en bild för att förstora den.
       </p>
 
@@ -39,11 +44,11 @@ $images      = $media_model->get_gallery_images(80);
       <?php else: ?>
         <div class="gallery-grid">
           <?php foreach ($images as $img): ?>
-          <a href="<?= UPLOAD_URL . e($img['file_name']) ?>"
+          <a href="<?= e(upload_url($img['file_name'])) ?>"
              class="gallery-item"
              data-lightbox>
             <img
-              src="<?= UPLOAD_URL . e($img['file_name']) ?>"
+              src="<?= e(upload_url($img['file_name'])) ?>"
               alt="<?= e($img['alt_text'] ?: $img['post_title']) ?>"
               loading="lazy"
             >
@@ -62,6 +67,6 @@ $images      = $media_model->get_gallery_images(80);
   </main>
   <?php public_footer(); ?>
 
-  <script src="<?= url('assets/script.js') ?>"></script>
+  <script src="<?= e(asset_url('assets/script.js')) ?>" defer></script>
 </body>
 </html>

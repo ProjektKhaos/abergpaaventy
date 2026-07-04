@@ -1,9 +1,17 @@
-# uploads/.htaccess – hindrar PHP-körning i uploads-mappen Ⓐ Style
-# Säkerhetskrav: uppladdade filer får aldrig köras som PHP
+# uploads/.htaccess – hindrar scriptkorning i uploads-mappen
+# Sakerhetskrav: uppladdade filer far aldrig koras som kod.
 
-php_flag engine off
 Options -Indexes
 
-<FilesMatch "\.(php|php3|php4|php5|phtml|phar)$">
+# Stang av PHP dar Apache tillater det.
+php_flag engine off
+
+# Blockera scriptliknande filer.
+<FilesMatch "\.(php|php[0-9]?|phtml|phar|cgi|pl|py|rb|sh|bash|zsh|exe|dll|jsp|asp|aspx)$">
   Require all denied
+</FilesMatch>
+
+# Tillat vanliga bildformat.
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|avif|svg)$">
+  Require all granted
 </FilesMatch>

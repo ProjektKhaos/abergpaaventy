@@ -17,18 +17,24 @@ $media_model    = new Media($pdo);
 $posts      = $post_model->get_published(12);
 $categories = $category_model->get_all_with_count();
 $images     = $media_model->get_gallery_images(6);
+
+$pageTitle       = 'Hasse i Thailand - 6 månader i Chiang Mai';
+$pageDescription = 'Studier, vardag, bilder och små äventyr från Chiang Mai.';
+$canonicalUrl    = url();
+$ogImageUrl      = asset_url('assets/img/studera_fb_og.png');
 ?>
 <!doctype html>
 <html lang="sv">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="Studier, vardag, bilder och små äventyr från Chiang Mai.">
-  <title>Hasse i Thailand - 6 månader i Chiang Mai</title>
-  <link rel="stylesheet" href="<?= asset_url('assets/style.css') ?>">
+  <?php public_meta($pageTitle, $pageDescription, $canonicalUrl, $ogImageUrl); ?>
+  <link rel="stylesheet" href="<?= e(asset_url('assets/style.css')) ?>">
 </head>
 <body>
   <?php public_header('home'); ?>
+
+  <main id="main-content">
 
   <!--
     Hero: startsidans stora första yta.
@@ -41,7 +47,7 @@ $images     = $media_model->get_gallery_images(6);
   <section class="hero">
     <div class="hero__content">
       <div class="hero__poster">
-        <img src="<?= url('assets/img/poster.jpg') ?>" alt="Hasse i Chiang Mai" loading="lazy">
+        <img src="<?= e(asset_url('assets/img/poster.jpg')) ?>" alt="Hasse i Chiang Mai" width="760" height="950" loading="eager" fetchpriority="high">
       </div>
       <div class="hero__text">
         <h1 class="hero__title">Hasse i Thailand <em>2026</em></h1>
@@ -52,21 +58,21 @@ $images     = $media_model->get_gallery_images(6);
         </p>
         <div class="hero__actions">
           <a href="#inlagg" class="btn">Läs senaste →</a>
-          <a href="<?= url('gallery.php') ?>" class="btn btn--ghost">Se foton</a>
+          <a href="<?= e(url('gallery.php')) ?>" class="btn btn--ghost">Se foton</a>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Inlägg -->
-  <main id="inlagg" class="posts-section">
+  <section id="inlagg" class="posts-section">
     <div class="container">
 
       <?php if (!empty($categories)): ?>
-      <div class="tags" style="margin-bottom:1.4rem;">
+      <div class="tags tags--spaced">
         <?php foreach ($categories as $cat): ?>
           <?php if ($cat['post_count'] > 0): ?>
-          <a href="<?= url('category.php?slug=' . e($cat['slug'])) ?>" class="tag">
+          <a href="<?= e(query_url('category.php', ['slug' => $cat['slug']])) ?>" class="tag">
             <?= e($cat['name']) ?> [ <?= (int)$cat['post_count'] ?> ]
           </a>
           <?php endif; ?>
@@ -86,11 +92,11 @@ $images     = $media_model->get_gallery_images(6);
           <p>Inga inlägg än – resan börjar snart!</p>
         </div>
       <?php else: ?>
-        <div class="posts-grid" style="margin-top:1.2rem;">
+        <div class="posts-grid posts-grid--spaced">
           <?php foreach ($posts as $p): ?>
           <article class="post-card">
             <?php if ($p['cover_file']): ?>
-            <img class="post-card__image" src="<?= UPLOAD_URL . e($p['cover_file']) ?>" alt="<?= e($p['title']) ?>" loading="lazy">
+            <img class="post-card__image" src="<?= e(upload_url($p['cover_file'])) ?>" alt="<?= e($p['title']) ?>" loading="lazy">
             <?php else: ?>
             <div class="post-card__image">📷</div>
             <?php endif; ?>
@@ -99,15 +105,15 @@ $images     = $media_model->get_gallery_images(6);
               <div class="post-card__meta">
                 <?php if ($p['post_date']): ?><span><?= e(format_date($p['post_date'])) ?></span><?php endif; ?>
                 <?php if ($p['location']): ?>
-                  <a href="<?= url('location.php?location=' . urlencode($p['location'])) ?>" class="location-badge"><?= e($p['location']) ?></a>
+                  <a href="<?= e(query_url('location.php', ['location' => $p['location']])) ?>" class="location-badge"><?= e($p['location']) ?></a>
                 <?php endif; ?>
               </div>
               <h2 class="post-card__title">
-                <a href="<?= url('post.php?slug=' . e($p['slug'])) ?>"><?= e($p['title']) ?></a>
+                <a href="<?= e(query_url('post.php', ['slug' => $p['slug']])) ?>"><?= e($p['title']) ?></a>
               </h2>
               <?php if ($p['intro']): ?><p class="post-card__intro"><?= e($p['intro']) ?></p><?php endif; ?>
               <div class="post-card__footer">
-                <a href="<?= url('post.php?slug=' . e($p['slug'])) ?>" class="btn btn--ghost btn--sm">Läs mer →</a>
+                <a href="<?= e(query_url('post.php', ['slug' => $p['slug']])) ?>" class="btn btn--ghost btn--sm">Läs mer →</a>
               </div>
             </div>
           </article>
@@ -116,7 +122,7 @@ $images     = $media_model->get_gallery_images(6);
       <?php endif; ?>
 
     </div>
-  </main>
+  </section>
 
   <!-- Bildrutor från resan -->
   <section class="comic-section">
@@ -127,8 +133,8 @@ $images     = $media_model->get_gallery_images(6);
       <?php else: ?>
         <div class="gallery-grid">
           <?php foreach ($images as $img): ?>
-            <a href="<?= url('post.php?slug=' . e($img['post_slug'])) ?>" class="gallery-item">
-              <img src="<?= UPLOAD_URL . e($img['file_name']) ?>" alt="<?= e($img['alt_text'] ?: $img['post_title']) ?>" loading="lazy">
+            <a href="<?= e(query_url('post.php', ['slug' => $img['post_slug']])) ?>" class="gallery-item">
+              <img src="<?= e(upload_url($img['file_name'])) ?>" alt="<?= e($img['alt_text'] ?: $img['post_title']) ?>" loading="lazy">
               <div class="gallery-item__overlay"><?= e($img['post_title']) ?></div>
             </a>
           <?php endforeach; ?>
@@ -142,17 +148,18 @@ $images     = $media_model->get_gallery_images(6);
     <div class="section-panel">
       <div class="section-heading"><p class="kicker">✉️ Vykort från Mae Kampong</p></div>
       <div class="split-section">
-        <img src="<?= url('assets/img/scrapbook.jpg') ?>" alt="Vykortscollage från Chiang Mai" loading="lazy"
-             style="width:100%;border:6px solid #fff;border-radius:3px;box-shadow:var(--shadow-card);">
-        <div class="quote-bubble" style="align-self:center;">
+        <img class="framed-image" src="<?= e(asset_url('assets/img/scrapbook.jpg')) ?>" alt="Vykortscollage från Chiang Mai" width="820" height="1025" loading="lazy">
+        <div class="quote-bubble align-center">
           <p>"Amy, vi saknar dig jätte mycket och önskar du vore här i Chiang Mai."</p>
         </div>
       </div>
     </div>
   </section>
 
+  </main>
+
   <?php public_footer(); ?>
 
-  <script src="<?= url('assets/script.js') ?>"></script>
+  <script src="<?= e(asset_url('assets/script.js')) ?>" defer></script>
 </body>
 </html>

@@ -5,39 +5,49 @@
 require_once __DIR__ . '/app/config.php';
 require_once __DIR__ . '/app/helpers.php';
 require_once __DIR__ . '/app/public_layout.php';
+
+$pageTitle       = 'Om sidan - Hasse i Thailand';
+$pageDescription = 'Om Åberg På Äventyr och rapporterna från Hasses tid i Chiang Mai.';
+$canonicalUrl    = url('about.php');
+$ogImageUrl      = asset_url('assets/img/studera_fb_og.png');
 ?>
 <!doctype html>
 <html lang="sv">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Om sidan - Hasse i Thailand</title>
-  <link rel="stylesheet" href="<?= asset_url('assets/style.css') ?>">
+  <?php public_meta($pageTitle, $pageDescription, $canonicalUrl, $ogImageUrl); ?>
+  <link rel="stylesheet" href="<?= e(asset_url('assets/style.css')) ?>">
 </head>
 <body>
   <?php public_header('about'); ?>
 
-  <main class="post-page about-page">
+  <main id="main-content" class="post-page about-page">
     <div class="section-panel">
-      <div class="section-heading"><p class="kicker">Om projektet</p></div>
+      <div class="section-heading">
+        <p class="kicker">Om projektet</p>
+        <h1>Om sidan</h1>
+      </div>
       <div class="split-section">
         <img
-          src="<?= url('assets/img/scrapbook.jpg') ?>"
+          class="framed-image"
+          src="<?= e(asset_url('assets/img/scrapbook.jpg')) ?>"
           alt="Vykortscollage från Chiang Mai"
+          width="820"
+          height="1025"
           loading="eager"
-          style="width:100%;border:6px solid #fff;border-radius:3px;box-shadow:var(--shadow-card);"
         >
-        <div class="quote-bubble" style="align-self:start;">
+        <div class="quote-bubble align-start">
           <p>Här samlar jag mina bilder, inlägg och små rapporter från tiden i Thailand under studierna i språk och kultur i Chiang Mai.</p>
         </div>
       </div>
-      <div style="margin-top:var(--s3);position:relative;z-index:1;">
-        <a href="<?= url() ?>" class="btn btn--ghost">← Till inläggen</a>
+      <div class="section-actions">
+        <a href="<?= e(url()) ?>" class="btn btn--ghost">← Till inläggen</a>
       </div>
     </div>
   </main>
   <?php public_footer(); ?>
 
-  <script src="<?= url('assets/script.js') ?>"></script>
+  <script src="<?= e(asset_url('assets/script.js')) ?>" defer></script>
 </body>
 </html>

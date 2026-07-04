@@ -24,6 +24,35 @@ function asset_url(string $path): string
 }
 
 /**
+ * Bygger en URL med query string pa ett sakert och portabelt satt.
+ */
+function query_url(string $path, array $params = []): string
+{
+    $filtered = array_filter(
+        $params,
+        static fn ($value): bool => $value !== null
+    );
+
+    if (!$filtered) {
+        return url($path);
+    }
+
+    $separator = str_contains($path, '?') ? '&' : '?';
+
+    return url($path) . $separator . http_build_query($filtered, '', '&', PHP_QUERY_RFC3986);
+}
+
+/**
+ * Bygger URL till en fil i uploads utan att tillata godtyckliga sokvagar.
+ */
+function upload_url(string $fileName): string
+{
+    $safeName = basename(str_replace('\\', '/', $fileName));
+
+    return url('uploads/' . rawurlencode($safeName));
+}
+
+/**
  * Escaped output för HTML – skyddar mot XSS.
  * Används alltid när användardata skrivs ut i HTML.
  */
@@ -98,7 +127,7 @@ function format_date(string $date): string
 function cover_url(?array $media): string
 {
     if (!$media) {
-        return url('assets/img/placeholder.svg');
+        return asset_url('assets/img/placeholder.svg');
     }
-    return UPLOAD_URL . e($media['file_name']);
+    return upload_url((string)$media['file_name']);
 }
