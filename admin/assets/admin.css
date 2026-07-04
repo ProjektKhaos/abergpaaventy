@@ -1,0 +1,340 @@
+/* admin.css – adminpanel för Thailand-bloggen Ⓐ Style */
+/* Uppdaterad: 2026-05-27 15:45 | av: KlⒶssⓔ & Ⓐberg */
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+img { display: block; max-width: 100%; height: auto; }
+input, button, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+
+/* iOS zoom-skydd */
+input, textarea, select { font-size: 1rem; }
+
+:root {
+  --bg:      #f0f2f5;
+  --surface: #ffffff;
+  --ink:     #1a1a2e;
+  --muted:   #6b7280;
+  --accent:  #c8622a;
+  --accent2: #3d8a7a;
+  --danger:  #dc2626;
+  --border:  #e5e7eb;
+  --shadow:  0 2px 8px rgba(0,0,0,0.07);
+  --radius:  8px;
+  --s1: 0.5rem;
+  --s2: 1rem;
+  --s3: 1.5rem;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  min-height: 100svh;
+}
+
+/* ================================================================
+   Admin-header
+   ================================================================ */
+.admin-header {
+  background: var(--ink);
+  color: #fff;
+  padding: var(--s2);
+  padding-top: max(var(--s2), env(safe-area-inset-top));
+  padding-inline: max(var(--s2), env(safe-area-inset-left), env(safe-area-inset-right));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.admin-header__logo {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+}
+.admin-header__logo span { color: var(--accent); }
+
+.admin-nav {
+  display: flex;
+  gap: var(--s1);
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.admin-nav a {
+  color: rgba(255,255,255,0.7);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.7rem;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius);
+  transition: background 0.15s;
+}
+.admin-nav a.active {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+@media (hover: hover) {
+  .admin-nav a:hover {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+  }
+}
+
+/* ================================================================
+   Innehållsyta
+   ================================================================ */
+.admin-main {
+  max-width: 56.25rem;
+  margin: 0 auto;
+  padding: var(--s3) var(--s2);
+}
+
+.page-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: var(--s3);
+}
+
+/* ================================================================
+   Statistik-kort (dashboard)
+   ================================================================ */
+.stat-grid {
+  display: grid;
+  gap: var(--s2);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  margin-bottom: var(--s3);
+}
+
+.stat-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: var(--s2);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.stat-card__number {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+.stat-card__label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+/* ================================================================
+   Tabell (inläggslista)
+   ================================================================ */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+}
+
+th, td {
+  padding: 0.7rem var(--s2);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  background: var(--bg);
+}
+
+tr:last-child td { border-bottom: none; }
+@media (hover: hover) {
+  tr:hover td { background: #f9fafb; }
+}
+
+/* ================================================================
+   Badges (status)
+   ================================================================ */
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.badge--published { background: #d1fae5; color: #065f46; }
+.badge--draft     { background: #fef3c7; color: #92400e; }
+
+/* ================================================================
+   Formulär
+   ================================================================ */
+.form-group {
+  margin-bottom: var(--s2);
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: var(--ink);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 1rem;
+  transition: border-color 0.15s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(200,98,42,0.15);
+}
+
+textarea.form-control {
+  min-height: 160px;
+  resize: vertical;
+}
+
+.form-hint {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 0.3rem;
+}
+
+/* ================================================================
+   Knappar
+   ================================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.2rem;
+  min-height: 44px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.btn--primary  { background: var(--accent); color: #fff; }
+.btn--success  { background: var(--accent2); color: #fff; }
+.btn--danger   { background: var(--danger); color: #fff; }
+.btn--ghost    { background: transparent; color: var(--ink); border: 1.5px solid var(--border); }
+.btn--sm       { padding: 0.45rem 0.8rem; font-size: 0.82rem; min-height: 44px; }
+@media (hover: hover) {
+  .btn:hover { opacity: 0.85; }
+}
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1);
+  margin-top: var(--s3);
+}
+
+/* ================================================================
+   Formulärkort
+   ================================================================ */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: var(--s3);
+  box-shadow: var(--shadow);
+  margin-bottom: var(--s2);
+}
+
+.card__title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: var(--s2);
+}
+
+/* ================================================================
+   Miniatyrbilder i media
+   ================================================================ */
+.media-grid {
+  display: grid;
+  gap: var(--s1);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 8rem), 1fr));
+}
+
+.media-thumb {
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 2px solid transparent;
+  transition: border-color 0.15s;
+}
+@media (hover: hover) {
+  .media-thumb:hover { border-color: var(--accent); }
+}
+
+/* ================================================================
+   Inloggningssida
+   ================================================================ */
+.login-wrap {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s2);
+  background: var(--ink);
+}
+
+.login-box {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: var(--s3);
+  width: 100%;
+  max-width: 22.5rem;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+}
+
+.login-box__logo {
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: var(--s3);
+  color: var(--ink);
+}
+.login-box__logo span { color: var(--accent); }
+
+.alert {
+  padding: 0.7rem var(--s2);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  margin-bottom: var(--s2);
+}
+.alert--error   { background: #fee2e2; color: #991b1b; }
+.alert--success { background: #d1fae5; color: #065f46; }

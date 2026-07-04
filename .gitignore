@@ -1,23 +1,52 @@
-### AL ###
-#Template for AL projects for Dynamics 365 Business Central
-#launch.json folder
+# Åberg På Äventyr - repo ignore
+
+# Local/server-only configuration with database credentials
+app/config.php
+.env
+.env.*
+!.env.example
+
+# Runtime uploads: keep the directory protection file, ignore uploaded media
+uploads/*
+!uploads/.htaccess
+!uploads/.gitkeep
+
+# Local/legacy seed scripts may contain site-specific admin data
+sql/seed.php
+sql/seed_posts.php
+
+# Old archived/generated documentation copies
+docs/2/
+docs/chillhasse_apan_thailand_design_WITH_MISSION/
+
+# Image folder: ignore bulk photos and duplicate "copy" exports by default
+assets/img/*
+!assets/img/studera_header.png
+!assets/img/poster.jpg
+!assets/img/scrapbook.jpg
+!assets/img/cm_sign.png
+!assets/img/placeholder.svg
+!assets/img/studera_fb_og.png
+
+# Logs, caches and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Editor/project-local files
 .vscode/
-#Cache folder
-.alcache/
-#Symbols folder
-.alpackages/
-#Snapshots folder
-.snapshots/
-#Testing Output folder
-.output/
-#Extension App-file
-*.app
-#Rapid Application Development File
-rad.json
-#Translation Base-file
-*.g.xlf
-#License-files
-*.bclicense
-*.flf
-#Test results file
-TestResults.xml
+.idea/
+
+# Dependency/build folders if added later
+vendor/
+node_modules/
+dist/
+build/
+.cache/
+
+# Local documentation/archive folder, not part of repo
+docs/
