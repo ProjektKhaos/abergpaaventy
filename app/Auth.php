@@ -21,7 +21,7 @@ class Auth
     public function login(string $username, string $password): bool
     {
         $stmt = $this->pdo->prepare(
-            "SELECT id, name, username, password_hash, role FROM users WHERE username = ? LIMIT 1"
+            "SELECT id, name, username, email, password_hash, role FROM users WHERE username = ? LIMIT 1"
         );
         $stmt->execute([$username]);
         $user = $stmt->fetch();
@@ -37,6 +37,7 @@ class Auth
         // Spara inloggad användare i sessionen
         $_SESSION['user_id']   = $user['id'];
         $_SESSION['user_name'] = $user['name'];
+        $_SESSION['user_email'] = $user['email'] ?? '';
         $_SESSION['user_role'] = $user['role'];
         // Regenerera session-ID för att förhindra session fixation
         session_regenerate_id(true);
@@ -78,5 +79,29 @@ class Auth
     public function name(): string
     {
         return $_SESSION['user_name'] ?? '';
+    }
+
+    /**
+     * Returnerar inloggad användares roll.
+     */
+    public function role(): string
+    {
+        return $_SESSION['user_role'] ?? '';
+    }
+
+    /**
+     * Returnerar inloggad användares e-post.
+     */
+    public function email(): string
+    {
+        return $_SESSION['user_email'] ?? '';
+    }
+
+    /**
+     * Kontrollerar om användaren har en viss roll.
+     */
+    public function has_role(string $role): bool
+    {
+        return $this->role() === $role;
     }
 }

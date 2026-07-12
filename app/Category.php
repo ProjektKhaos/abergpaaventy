@@ -15,15 +15,19 @@ class Category
      */
     public function get_all_with_count(): array
     {
-        return $this->pdo->query("
+        $stmt = $this->pdo->prepare("
             SELECT c.id, c.name, c.slug,
-                   COUNT(pc.post_id) AS post_count
+                   COUNT(p.id) AS post_count
             FROM categories c
             LEFT JOIN post_categories pc ON pc.category_id = c.id
             LEFT JOIN posts p ON p.id = pc.post_id AND p.status = 'published'
+                AND p.content_type = 'article'
+                AND (p.publish_date IS NULL OR p.publish_date <= ?)
             GROUP BY c.id
             ORDER BY c.name ASC
-        ")->fetchAll();
+        ");
+        $stmt->execute([date('Y-m-d')]);
+        return $stmt->fetchAll();
     }
 
     /**
@@ -34,6 +38,32 @@ class Category
         return $this->pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
     }
 
+    public function create(string $name, string $slug): int
+    {
+        $stmt = $this->pdo->prepare("INSERT INTO categories (name, slug) VALUES (?, ?)");
+        $stmt->execute([$name, $slug]);
+        return (int)$this->pdo->lastInsertId();
+    }
+
+    public function update(int $id, string $name, string $slug): void
+    {
+        $stmt = $this->pdo->prepare("UPDATE categories SET name = ?, slug = ? WHERE id = ?");
+        $stmt->execute([$name, $slug, $id]);
+    }
+
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare("DELETE FROM categories WHERE id = ?");
+        $stmt->execute([$id]);
+    }
+
+    public function count_posts(int $id): int
+    {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM post_categories WHERE category_id = ?");
+        $stmt->execute([$id]);
+        return (int)$stmt->fetchColumn();
+    }
+
     /**
      * Hämtar en kategori via slug.
      */
@@ -41,6 +71,13 @@ class Category
     {
         $stmt = $this->pdo->prepare("SELECT * FROM categories WHERE slug = ? LIMIT 1");
         $stmt->execute([$slug]);
+        return $stmt->fetch();
+    }
+
+    public function get_by_id(int $id): array|false
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM categories WHERE id = ? LIMIT 1");
+        $stmt->execute([$id]);
         return $stmt->fetch();
     }
 
@@ -55,10 +92,12 @@ class Category
             JOIN post_categories pc ON pc.post_id = p.id
             LEFT JOIN media m ON m.id = p.cover_image_id
             WHERE pc.category_id = ?
+              AND p.content_type = 'article'
               AND p.status = 'published'
+              AND (p.publish_date IS NULL OR p.publish_date <= ?)
             ORDER BY p.post_date DESC
         ");
-        $stmt->execute([$category_id]);
+        $stmt->execute([$category_id, date('Y-m-d')]);
         return $stmt->fetchAll();
     }
 

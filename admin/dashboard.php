@@ -1,20 +1,14 @@
 <?php
 // admin/dashboard.php – översikt för adminpanelen Ⓐ Style
 
-require_once __DIR__ . '/../app/config.php';
-require_once __DIR__ . '/../app/db.php';
-require_once __DIR__ . '/../app/helpers.php';
-require_once __DIR__ . '/../app/Auth.php';
-require_once __DIR__ . '/../app/Post.php';
-
-$auth = new Auth($pdo);
-$auth->require_login();
+require_once __DIR__ . '/bootstrap.php';
 
 $post_model = new Post($pdo);
 $published  = $post_model->count_published();
 $drafts     = $post_model->count_drafts();
 $latest     = $post_model->get_all();
 $latest     = array_slice($latest, 0, 5); // Visa max 5 senaste
+$today      = date('Y-m-d');
 
 $page_title = 'Dashboard';
 require_once __DIR__ . '/includes/header.php';
@@ -66,11 +60,14 @@ require_once __DIR__ . '/includes/header.php';
       </thead>
       <tbody>
         <?php foreach ($latest as $p): ?>
+        <?php
+          $status = admin_status_label($p, $today);
+        ?>
         <tr>
           <td><?= e($p['title']) ?></td>
           <td>
-            <span class="badge badge--<?= $p['status'] ?>">
-              <?= $p['status'] === 'published' ? 'Publicerat' : 'Utkast' ?>
+            <span class="badge badge--<?= e($status['class']) ?>">
+              <?= e($status['label']) ?>
             </span>
           </td>
           <td><?= $p['post_date'] ? e(format_date($p['post_date'])) : '—' ?></td>

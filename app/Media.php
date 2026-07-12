@@ -88,11 +88,63 @@ class Media
      */
     public function attach_to_post(int $media_id, int $post_id, int $sort = 0): void
     {
+        $check = $this->pdo->prepare("
+            SELECT id FROM post_media
+            WHERE post_id = ? AND media_id = ?
+            LIMIT 1
+        ");
+        $check->execute([$post_id, $media_id]);
+        $existing_id = $check->fetchColumn();
+
+        if ($existing_id) {
+            $update = $this->pdo->prepare("UPDATE post_media SET sort_order = ? WHERE id = ?");
+            $update->execute([$sort, $existing_id]);
+            return;
+        }
+
         $stmt = $this->pdo->prepare("
-            INSERT IGNORE INTO post_media (post_id, media_id, sort_order)
+            INSERT INTO post_media (post_id, media_id, sort_order)
             VALUES (?, ?, ?)
         ");
         $stmt->execute([$post_id, $media_id, $sort]);
+    }
+
+    /**
+     * Tar bort kopplingar mellan ett inlägg och valda mediaposter.
+     */
+    public function detach_from_post(int $post_id, array $media_ids): void
+    {
+        $media_ids = array_values(array_unique(array_filter(array_map('intval', $media_ids))));
+        if (!$media_ids) {
+            return;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($media_ids), '?'));
+        $stmt = $this->pdo->prepare("
+            DELETE FROM post_media
+            WHERE post_id = ? AND media_id IN ($placeholders)
+        ");
+        $stmt->execute(array_merge([$post_id], $media_ids));
+    }
+
+    /**
+     * Räknar galleribilder för ett inlägg.
+     */
+    public function count_for_post(int $post_id): int
+    {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM post_media WHERE post_id = ?");
+        $stmt->execute([$post_id]);
+        return (int)$stmt->fetchColumn();
+    }
+
+    /**
+     * Hämtar högsta sorteringsordningen för ett inläggs galleri.
+     */
+    public function max_sort_for_post(int $post_id): int
+    {
+        $stmt = $this->pdo->prepare("SELECT COALESCE(MAX(sort_order), -1) FROM post_media WHERE post_id = ?");
+        $stmt->execute([$post_id]);
+        return (int)$stmt->fetchColumn();
     }
 
     /**
@@ -107,9 +159,12 @@ class Media
             JOIN post_media pm ON pm.media_id = m.id
             JOIN posts p ON p.id = pm.post_id
             WHERE p.status = 'published'
+              AND p.content_type = 'article'
+              AND (p.publish_date IS NULL OR p.publish_date <= :today)
             ORDER BY pm.post_id DESC, pm.sort_order ASC
             LIMIT :limit
         ");
+        $stmt->bindValue(':today', date('Y-m-d'));
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();

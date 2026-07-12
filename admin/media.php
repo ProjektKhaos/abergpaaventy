@@ -1,16 +1,10 @@
 <?php
 // admin/media.php – mediabibliotek och bilduppladdning Ⓐ Style
 
-require_once __DIR__ . '/../app/config.php';
-require_once __DIR__ . '/../app/db.php';
-require_once __DIR__ . '/../app/helpers.php';
-require_once __DIR__ . '/../app/Auth.php';
-require_once __DIR__ . '/../app/Media.php';
-
-$auth = new Auth($pdo);
-$auth->require_login();
+require_once __DIR__ . '/bootstrap.php';
 
 $media_model = new Media($pdo);
+$media_service = new MediaService($media_model);
 $success     = '';
 $error       = '';
 
@@ -20,30 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_FILES['images'])) {
 
     $alt     = trim($_POST['alt']     ?? '');
     $caption = trim($_POST['caption'] ?? '');
-    $count   = 0;
+    $result  = $media_service->upload_many($_FILES['images'], $alt, $caption);
 
-    // Stödjer uppladdning av flera bilder
-    $files = $_FILES['images'];
-    $total = count($files['name']);
-
-    for ($i = 0; $i < $total; $i++) {
-        $single = [
-            'name'     => $files['name'][$i],
-            'type'     => $files['type'][$i],
-            'tmp_name' => $files['tmp_name'][$i],
-            'error'    => $files['error'][$i],
-            'size'     => $files['size'][$i],
-        ];
-        if ($single['error'] === UPLOAD_ERR_OK) {
-            $result = $media_model->upload($single, $alt, $caption);
-            if ($result) $count++;
-        }
-    }
-
-    if ($count > 0) {
-        $success = "$count bild(er) laddades upp.";
+    if ($result->ok) {
+        $success = $result->message;
     } else {
-        $error = 'Inga bilder laddades upp. Kontrollera filtyp (jpg, png, webp).';
+        $error = implode(' ', $result->errors);
     }
 }
 

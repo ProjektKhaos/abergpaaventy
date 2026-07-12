@@ -1,19 +1,14 @@
 <?php
 // admin/includes/header.php – gemensam header för adminpanelen Ⓐ Style
 
-// Starta session och kontrollera inloggning
-if (!defined('NO_AUTH')) {
-    require_once __DIR__ . '/../../app/config.php';
-    require_once __DIR__ . '/../../app/db.php';
-    require_once __DIR__ . '/../../app/helpers.php';
-    require_once __DIR__ . '/../../app/Auth.php';
-
-    $auth = new Auth($pdo);
-    $auth->require_login();
+// Starta adminmiljön om sidan inte redan gjort det.
+if (!isset($auth, $admin_modules)) {
+    require_once __DIR__ . '/../bootstrap.php';
 }
 
 // Aktiv sida för navigation
 $current_page = basename($_SERVER['PHP_SELF']);
+$active_module = admin_active_module($current_page, $admin_modules);
 ?>
 <!doctype html>
 <html lang="sv">
@@ -29,18 +24,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <span class="admin-header__logo">🇹🇭 Admin – <span>Thailand-bloggen</span></span>
     <nav>
       <ul class="admin-nav">
-        <li><a href="<?= url('admin/dashboard.php') ?>"
-               class="<?= $current_page === 'dashboard.php' ? 'active' : '' ?>">
-          Dashboard
+        <?php foreach ($admin_modules as $key => $module): ?>
+        <li><a href="<?= e($module['url']) ?>"
+               class="<?= $active_module === $key ? 'active' : '' ?>">
+          <?= e($module['label']) ?>
         </a></li>
-        <li><a href="<?= url('admin/posts.php') ?>"
-               class="<?= in_array($current_page, ['posts.php','post_edit.php']) ? 'active' : '' ?>">
-          Inlägg
-        </a></li>
-        <li><a href="<?= url('admin/media.php') ?>"
-               class="<?= $current_page === 'media.php' ? 'active' : '' ?>">
-          Media
-        </a></li>
+        <?php endforeach; ?>
         <li><a href="<?= url() ?>" target="_blank">↗ Sidan</a></li>
         <li><a href="<?= url('admin/logout.php') ?>">Logga ut</a></li>
       </ul>

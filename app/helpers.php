@@ -122,6 +122,120 @@ function format_date(string $date): string
 }
 
 /**
+ * Sanerar enkel artikel-HTML från admineditorn.
+ */
+function sanitize_html(string $html): string
+{
+    $html = trim($html);
+    if ($html === '') {
+        return '';
+    }
+
+    $allowed_tags = ['p','br','strong','b','em','i','u','ul','ol','li','a','h2','h3','blockquote'];
+    $drop_tags = ['script','style','iframe','object','embed'];
+    $allowed_attrs = ['a' => ['href','target','rel']];
+
+    $dom = new DOMDocument('1.0', 'UTF-8');
+    $previous = libxml_use_internal_errors(true);
+    $dom->loadHTML(
+        '<?xml encoding="utf-8" ?><div id="__html_root__">' . $html . '</div>',
+        LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+    );
+    libxml_clear_errors();
+    libxml_use_internal_errors($previous);
+
+    $root = $dom->getElementById('__html_root__');
+    if (!$root) {
+        return '';
+    }
+
+    $clean_node = static function (DOMNode $node) use (&$clean_node, $allowed_tags, $allowed_attrs, $drop_tags): void {
+        if ($node instanceof DOMElement) {
+            $tag = strtolower($node->tagName);
+            if (in_array($tag, $drop_tags, true)) {
+                $node->parentNode?->removeChild($node);
+                return;
+            }
+
+            if (!in_array($tag, $allowed_tags, true) && $node->getAttribute('id') !== '__html_root__') {
+                $parent = $node->parentNode;
+                $children = [];
+                while ($node->firstChild) {
+                    $child = $node->firstChild;
+                    $children[] = $child;
+                    $parent->insertBefore($child, $node);
+                }
+                $parent->removeChild($node);
+                foreach ($children as $child) {
+                    $clean_node($child);
+                }
+                return;
+            }
+
+            foreach (iterator_to_array($node->attributes) as $attr) {
+                $name = strtolower($attr->name);
+                if (!in_array($name, $allowed_attrs[$tag] ?? [], true)) {
+                    $node->removeAttribute($attr->name);
+                }
+            }
+
+            if ($tag === 'a') {
+                $href = trim($node->getAttribute('href'));
+                $is_safe_href = preg_match('/^(https?:|mailto:|\\/|#)/i', $href) === 1;
+                if ($href === '' || !$is_safe_href) {
+                    $node->removeAttribute('href');
+                    $node->removeAttribute('target');
+                    $node->removeAttribute('rel');
+                } elseif ($node->getAttribute('target') === '_blank') {
+                    $node->setAttribute('rel', 'noopener noreferrer');
+                }
+            }
+        }
+
+        foreach (iterator_to_array($node->childNodes) as $child) {
+            $clean_node($child);
+        }
+    };
+
+    $clean_node($root);
+
+    $output = '';
+    foreach ($root->childNodes as $child) {
+        $output .= $dom->saveHTML($child);
+    }
+
+    return trim($output);
+}
+
+/**
+ * Förbereder befintlig brödtext för WYSIWYG-editorn.
+ */
+function editor_body_html(string $body): string
+{
+    if ($body === '') {
+        return '';
+    }
+
+    if ($body !== strip_tags($body)) {
+        return sanitize_html($body);
+    }
+
+    return nl2br(e($body));
+}
+
+/**
+ * Renderar artikelns brödtext publikt.
+ */
+function render_post_body(string $body): string
+{
+    if ($body !== strip_tags($body)) {
+        return sanitize_html($body);
+    }
+
+    return nl2br(e($body));
+}
+
+/**
  * Returnerar en säker bildlänk, eller placeholder om inget media finns.
  */
 function cover_url(?array $media): string

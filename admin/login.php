@@ -3,14 +3,7 @@
 
 define('NO_AUTH', true);
 
-require_once __DIR__ . '/../app/config.php';
-require_once __DIR__ . '/../app/db.php';
-require_once __DIR__ . '/../app/helpers.php';
-require_once __DIR__ . '/../app/Auth.php';
-
-session_start();
-
-$auth = new Auth($pdo);
+require_once __DIR__ . '/bootstrap.php';
 
 // Redan inloggad → skicka till dashboard
 if ($auth->check()) {

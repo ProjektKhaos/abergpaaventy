@@ -25,6 +25,9 @@ if (!$post) {
     $gallery    = $post_model->get_gallery($post['id']);
     $categories = $post_model->get_categories($post['id']);
     $tags       = $post_model->get_tags($post['id']);
+    $links      = ($post['content_type'] ?? 'article') === 'cmt'
+        ? $post_model->get_links($post['id'])
+        : [];
     $title      = $post['title'];
 }
 
@@ -39,6 +42,15 @@ $ogImageUrl      = $post && $post['cover_file']
     ? upload_url($post['cover_file'])
     : asset_url('assets/img/studera_fb_og.png');
 $ogType          = $post ? 'article' : 'website';
+$isNews          = $post && ($post['content_type'] ?? 'article') === 'news';
+$isCmt           = $post && ($post['content_type'] ?? 'article') === 'cmt';
+$backUrl         = url($isCmt ? 'cmt.php' : ($isNews ? 'nyheter.php' : 'articles.php'));
+$backLabel       = $isCmt ? 'Alla Chiang Mai-tips' : ($isNews ? 'Alla nyheter' : 'Alla inlägg');
+$activeMenu      = $isCmt ? 'cmt' : ($isNews ? 'news' : 'post');
+$hasCoordinates = $isCmt && $post['latitude'] !== null && $post['longitude'] !== null;
+$mapsUrl         = $hasCoordinates
+    ? 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode($post['latitude'] . ',' . $post['longitude'])
+    : '';
 ?>
 <!doctype html>
 <html lang="sv">
@@ -49,7 +61,7 @@ $ogType          = $post ? 'article' : 'website';
   <link rel="stylesheet" href="<?= e(asset_url('assets/style.css')) ?>">
 </head>
 <body>
-  <?php public_header('post'); ?>
+  <?php public_header($activeMenu); ?>
 
   <main id="main-content" class="post-page">
     <div class="container">
@@ -58,25 +70,29 @@ $ogType          = $post ? 'article' : 'website';
         <div class="empty-state">
           <div class="empty-state__icon">🔍</div>
           <h1>Inlägg hittades inte</h1>
-          <p><a href="<?= e(url()) ?>" class="btn btn--primary">← Tillbaka till startsidan</a></p>
+          <p><a href="<?= e(url('articles.php')) ?>" class="btn btn--primary">← Till alla inlägg</a></p>
         </div>
 
       <?php else: ?>
 
         <!-- Navigering tillbaka -->
         <p class="back-link-row back-link-row--loose">
-          <a href="<?= e(url()) ?>" class="back-link">← Alla inlägg</a>
+          <a href="<?= e($backUrl) ?>" class="back-link">← <?= e($backLabel) ?></a>
         </p>
 
         <!-- Header -->
         <header class="post-page__header">
           <div class="post-page__meta">
             <?php if ($post['post_date']): ?>
-              <span><?= e(format_date($post['post_date'])) ?></span>
+              <span class="post-date-badge"><?= e(format_date($post['post_date'])) ?></span>
             <?php endif; ?>
             <?php if ($post['location']): ?>
               <span>•</span>
-              <a href="<?= e(query_url('location.php', ['location' => $post['location']])) ?>" class="location-badge"><?= e($post['location']) ?></a>
+              <?php if ($isCmt || $isNews): ?>
+                <span class="location-badge"><?= e($post['location']) ?></span>
+              <?php else: ?>
+                <a href="<?= e(query_url('location.php', ['location' => $post['location']])) ?>" class="location-badge"><?= e($post['location']) ?></a>
+              <?php endif; ?>
             <?php endif; ?>
           </div>
 
@@ -99,10 +115,36 @@ $ogType          = $post ? 'article' : 'website';
         >
         <?php endif; ?>
 
+        <?php if ($isCmt && ($hasCoordinates || !empty($links))): ?>
+        <section class="tip-resources section-spacer" aria-labelledby="tip-resources-title">
+          <p id="tip-resources-title" class="section-title">Praktisk information</p>
+
+          <?php if ($hasCoordinates): ?>
+          <div class="tip-coordinate-card">
+            <div>
+              <strong>Koordinater</strong><br>
+              <span><?= e($post['latitude']) ?>, <?= e($post['longitude']) ?></span>
+            </div>
+            <a href="<?= e($mapsUrl) ?>" class="btn btn--primary btn--sm"
+               target="_blank" rel="noopener noreferrer">Öppna i Google Maps ↗</a>
+          </div>
+          <?php endif; ?>
+
+          <?php if (!empty($links)): ?>
+          <div class="tip-external-links">
+            <?php foreach ($links as $link): ?>
+              <a href="<?= e($link['url']) ?>" class="btn btn--ghost"
+                 target="_blank" rel="noopener noreferrer"><?= e($link['label']) ?> ↗</a>
+            <?php endforeach; ?>
+          </div>
+          <?php endif; ?>
+        </section>
+        <?php endif; ?>
+
         <!-- Brödtext -->
         <?php if ($post['body']): ?>
         <div class="post-body">
-          <?= nl2br(e($post['body'])) ?>
+          <?= render_post_body($post['body']) ?>
         </div>
         <?php endif; ?>
 
@@ -144,7 +186,7 @@ $ogType          = $post ? 'article' : 'website';
           <?php if (!empty($tags)): ?>
           <div class="tags">
             <?php foreach ($tags as $tag): ?>
-            <span class="tag"><?= e($tag['name']) ?></span>
+            <span class="tag">#<?= e($tag['name']) ?></span>
             <?php endforeach; ?>
           </div>
           <?php endif; ?>
@@ -153,7 +195,7 @@ $ogType          = $post ? 'article' : 'website';
 
         <!-- Tillbaka-knapp -->
         <div class="section-actions section-actions--large">
-          <a href="<?= e(url()) ?>" class="btn btn--ghost">← Fler inlägg</a>
+          <a href="<?= e($backUrl) ?>" class="btn btn--ghost">← <?= $isCmt ? 'Fler Chiang Mai-tips' : ($isNews ? 'Fler nyheter' : 'Fler inlägg') ?></a>
         </div>
 
       <?php endif; ?>

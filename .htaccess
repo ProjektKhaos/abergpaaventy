@@ -6,7 +6,7 @@ RedirectMatch 404 "(^|/)\.git(/|$)"
 RedirectMatch 404 "(^|/)\.(?!well-known/)"
 
 # Blockera interna projektkataloger.
-RedirectMatch 404 "^/(app|sql|mobile-first-web)(/|$)"
+RedirectMatch 404 "^/(app|sql|storage|mobile-first-web)(/|$)"
 
 # Blockera filtyper som inte ska serveras publikt.
 <FilesMatch "\.(md|sql|log|bak|backup|old|orig|save|swp|env|ini|yml|yaml|lock|json)$">

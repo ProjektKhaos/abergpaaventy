@@ -18,6 +18,7 @@
   - Hero-rubriker styrs av .hero__title, .hero__desc och .speech.
   - Inläggskort styrs av .post-card, .post-card__title och .post-card__intro.
   - Galleri styrs av .gallery-grid, .gallery-item och .gallery-item__overlay.
+  - Enkel indexbild styrs av .index-image-page och .index-image-stage.
 
   Viktigt:
   - Ändra text i PHP-filerna, inte här i CSS.
@@ -43,6 +44,7 @@
   .post-card__title rad ca 537 - inläggskortens rubriker.
   .post-card__intro rad ca 548 - inläggskortens introtext.
   .gallery-grid rad ca 587 - galleriets rutnät.
+  .index-image-page längst ner - index.php med upprepande bg.png och centrerad collagebild.
 */
 
 :root {
@@ -118,6 +120,49 @@ img, svg, video, canvas { display: block; max-width: 100%; height: auto; }
 button, input, select, textarea { color: inherit; font: inherit; font-size: 16px; }
 a { color: inherit; text-decoration: none; }
 
+/*
+  ENKEL INDEXBILD
+  Används bara av index.php via body-klassen .index-image-page.
+  - Bakgrundsbilden är assets/img/bg.png och repeteras över hela viewporten.
+  - Huvudbilden är assets/img/travel-desk-collage.png.
+  - translateX(-4vw) placerar huvudbilden lite åt vänster.
+  - rotate(-2deg) ger bilden en svag vänster-tilt.
+  - border och border-radius styr den tunna gula ramen och rundade hörn.
+*/
+body.index-image-page {
+  min-height: 100svh;
+  overflow: hidden;
+  background-color: #f2ddba;
+  background-image: url("img/bg.png");
+  background-repeat: repeat;
+  background-size: auto;
+  background-position: top left;
+}
+
+.index-image-stage {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(16px, 4vw, 48px);
+}
+
+.index-image-stage__collage {
+  width: auto;
+  height: auto;
+  max-width: min(75vw, 800px);
+  max-height: 74svh;
+  border: 2px solid var(--gold);
+  border-radius: 8px;
+  transform: translateX(-4vw) rotate(4deg);
+}
+
+@media (max-width: 720px) {
+  .index-image-stage__collage {
+    max-width: min(90vw, 898px);
+    transform: translateX(-7vw) rotate(-2deg);
+  }
+}
+
 :focus-visible {
   outline: 3px solid currentColor;
   outline-offset: 3px;
@@ -172,6 +217,85 @@ h1, h2, h3 { color: var(--ink); line-height: 1.08; overflow-wrap: anywhere; }
 }
 .site-header::after { content: none; }
 
+.site-header__weather {
+  /* Placerar väderrutan fritt ovanpå headern.
+     Alternativ: position: relative om den ska ligga kvar i sidans vanliga flöde. */
+  position: absolute;
+
+  /* Avstånd från högerkanten: minst .75rem, följsamt 2vw, högst 1.5rem.
+     Alternativ: right: 1rem för ett fast avstånd. */
+  right: clamp(.75rem, 2vw, 1.5rem);
+
+  /* Sätter rutans överkant mitt i headern. translateY nedan centrerar hela rutan. */
+  top: 50%;
+
+  /* Visar väderrutan ovanpå element med lägre z-index, exempelvis bannerbilden. */
+  z-index: 2;
+
+  /* Flyttar upp rutan halva dess egen höjd och ger den en liten serietidningslutning.
+     Alternativ: translateY(-50%) utan rotate om rutan ska vara helt rak. */
+  transform: translateY(-50%) rotate(-1.2deg);
+
+  /* Responsiv bredd. OBS: maxvärdet 5rem är mindre än minvärdet 11rem,
+     vilket i praktiken gör att bredden stannar vid 11rem.
+     Alternativ: width: clamp(11rem, 18vw, 15rem) för en verkligt följsam bredd. */
+  width: clamp(11rem, 18vw, 2rem);
+
+  /* Hindrar rutan från att bli bredare än skärmen, med 1rem luft på varje sida. */
+  max-width: calc(100% - 2rem);
+
+  /* Inre luft: .35rem upptill/nedtill och .9rem till vänster/höger. */
+  padding: .35rem .9rem;
+
+  /* Bakgrundsfärgen hämtas från CSS-variabeln --comic-blue.
+     Alternativ: ange en fast färg, exempelvis background: #1976d2. */
+  background: var(--comic-blue);
+
+  /* Svart konturlinje runt rutan, där --ink styr färgen. */
+  border: 2px solid var(--ink);
+
+  /* Rundar rutans hörn. Alternativ: 0 för raka eller 999px för mycket runda hörn. */
+  border-radius: 8px;
+
+  /* Hård skugga 3px åt höger och nedåt, utan suddighet.
+     Alternativ: 0 4px 10px rgb(0 0 0 / 25%) för en mjuk skugga. */
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.site-header__weather .metro-eyebrow {
+  /* Nollställer övriga marginaler och ger ett litet avstånd under rubriken. */
+  margin: 0 0 .15rem;
+  /* Rubrikfärg från variabeln --gold. Alternativ: color: #fff. */
+  color: var(--gold);
+  /* Använder Bangers om den finns, annars systemets sans-serif-typsnitt. */
+  font-family: 'consolas', system-ui, sans-serif;
+  /* Textstorleken för den lilla rubriken ovanför temperaturen. */
+  font-size: .62rem;
+  /* Ökar avståndet mellan bokstäverna. Alternativ: 0 för normal teckenbredd. */
+  letter-spacing: .08em;
+}
+
+.site-header__weather .metro-temperature {
+  /* Temperaturens färg. */
+  color: var(--gold);
+  /* Responsiv textstorlek: minst 1.45rem och högst 2rem.
+     Alternativ: font-size: 1.75rem för en fast storlek. */
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  /* Tät radhöjd runt temperaturtexten. Alternativ: 1.2 för mer luft. */
+  line-height: .95;
+}
+
+.site-header__weather .metro-description {
+  /* Litet mellanrum ovanför beskrivningen, inga marginaler på övriga sidor. */
+  margin: .2rem 0 0;
+  /* Vit text ger tydlig kontrast mot den blå bakgrunden. */
+  color: #fff;
+  /* Textstorleken för exempelvis väderbeskrivningen. */
+  font-size: .74rem;
+  /* Fet text. Alternativ: 400 för normal eller 600 för halvfet stil. */
+  font-weight: 700;
+}
+
 .brand {
   display: block;
   width: 100%;
@@ -182,6 +306,8 @@ h1, h2, h3 { color: var(--ink); line-height: 1.08; overflow-wrap: anywhere; }
   color: transparent;
   text-indent: -9999px;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
 .tagline { display: none; }
 
@@ -240,8 +366,19 @@ h1, h2, h3 { color: var(--ink); line-height: 1.08; overflow-wrap: anywhere; }
   line-height: 1.05;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  /* Alla knappar, även framtida menyknappar, får alltid en grundtilt.
+     Riktningen blandas automatiskt av nth-child-reglerna nedan. */
+  --tilt: -1.5deg;
+  transform: rotate(var(--tilt));
   transition: transform .12s ease, box-shadow .12s ease, background .12s ease, color .12s ease;
 }
+
+/* Fast blandning som ser slumpmässig ut men inte ändras vid sidladdning.
+   Mönstret upprepas automatiskt, så nya knappar får också tilt.
+   Grundriktningen är -1.5deg; dessa positioner får motsatt riktning. */
+.nav-button:nth-child(4n + 2),
+.nav-button:nth-child(4n + 3) { --tilt: 1.5deg; }
+
 .nav-button.active {
   /* Aktiv sida i menyn. Byt background till var(--gold) och color till var(--ink) för gul aktiv flik. */
   background: var(--comic-blue);
@@ -254,7 +391,8 @@ h1, h2, h3 { color: var(--ink); line-height: 1.08; overflow-wrap: anywhere; }
     background: var(--gold);
     border-color: var(--ink);
     color: var(--ink);
-    transform: translateY(-1px);
+    /* Flyttar upp knappen men behåller dess fasta tiltriktning. */
+    transform: translateY(-1px) rotate(var(--tilt));
     box-shadow: 0 2px 0 rgba(44, 33, 24, 0.22);
   }
 }
@@ -274,7 +412,7 @@ h1, h2, h3 { color: var(--ink); line-height: 1.08; overflow-wrap: anywhere; }
 .post-page .container--narrow {
   background: var(--card);
   border: 1px solid var(--card-edge);
-  border-radius: 6px;
+  border-radius: 12px;
   box-shadow: var(--shadow-card);
   padding: 18px;
   position: relative;
@@ -300,6 +438,12 @@ h1, h2, h3 { color: var(--ink); line-height: 1.08; overflow-wrap: anywhere; }
   font-size: 0.9rem;
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+.back-link {
+  color: var(--teak);
+  font-family:'Caveat',cursive;
+  font-size: 1.15rem;
+  font-weight: 700;
 }
 .section-actions {
   margin-top: var(--s3);
@@ -575,6 +719,12 @@ h1, h2, h3 { color: var(--ink); line-height: 1.08; overflow-wrap: anywhere; }
   font-size: 1.15rem;
   font-weight: 700;
 }
+.post-date-badge {
+  color: var(--teak);
+  font-family:'Caveat',cursive;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
 .location-badge::before { content: "📍"; margin-right: 2px; font-size: .9em; }
 @media (hover: hover) {
   a.tag:hover { background: var(--gold); color: var(--ink); border-color: var(--ink); transform: translateY(-2px); }
@@ -654,9 +804,10 @@ h1, h2, h3 { color: var(--ink); line-height: 1.08; overflow-wrap: anywhere; }
   letter-spacing: 0.01em;
 }
 .post-page__header { margin-bottom: 18px; }
+.post-page__header h1 { margin-bottom: 0.35rem; }
 .post-page__cover {
   aspect-ratio: 16 / 9; width: 100%; object-fit: cover;
-  border: 6px solid #fff; border-radius: 3px;
+  border: 6px solid #fff; border-radius: 12px;
   box-shadow: var(--shadow-card); margin-bottom: 20px;
 }
 .post-page__cover--contain {
@@ -683,6 +834,34 @@ h1, h2, h3 { color: var(--ink); line-height: 1.08; overflow-wrap: anywhere; }
   border-top: 1px solid var(--border);
   margin-top: var(--s3);
   padding-top: var(--s2);
+}
+
+.tip-resources {
+  display: grid;
+  gap: var(--s2);
+  max-width: 65ch;
+}
+
+.tip-coordinate-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  padding: var(--s2);
+  border: 2px solid var(--ink);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.tip-coordinate-card span {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.tip-external-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1);
 }
 
 /* ====== Galleri ====== */
@@ -801,6 +980,427 @@ h1, h2, h3 { color: var(--ink); line-height: 1.08; overflow-wrap: anywhere; }
   max-height: 82svh;
   max-width: min(100%, 1180px);
   object-fit: contain;
+}
+
+/* =========================================================
+   Chiang Mai Metro / Weather page
+   Senast uppdaterad: 2026-07-11
+
+   SNABBGUIDE – VAD STYR VAD?
+   .metro-page                  = hela vädersidans yttre placering
+   .metro-hero                  = översta introduktionsrutan
+   .metro-clock                 = klockrutan och dess text
+   .metro-status                = laddnings-, varnings- och felmeddelanden
+   .metro-now                   = kortet med aktuellt väder
+   .metro-weather-symbol        = den runda väderikonen
+   .metro-temperature           = den stora aktuella temperaturen
+   .metro-detail-grid           = rutorna med vind, luftfuktighet med mera
+   .metro-hourly                = den vågräta timprognosen
+   .metro-hour-card             = ett enskilt timkort
+   .metro-daily                 = rutnätet för dagsprognosen
+   .metro-day-card              = ett enskilt dagskort
+   .chiangmai-mini-widget       = den lilla väderwidgeten
+   @media-reglerna längst ner = antal kolumner på olika skärmbredder
+   ========================================================= */
+
+/* Hela vädersidan: 26px luft ovanför/under och automatisk centrering i sidled.
+   Alternativ: margin: 0 auto för ingen luft eller 40px auto för mer luft. */
+.metro-page {
+  margin: 26px auto;
+}
+
+/* Lägger sidans huvudsektioner under varandra med mellanrum.
+   Alternativ: gap: var(--s4) för större avstånd. */
+.metro-page .container {
+  display: grid;
+  gap: var(--s3);
+}
+
+/* Översta hero-rutan: padding styr inre luft, background färgerna,
+   border ramen och box-shadow den hårda serietidningsskuggan.
+   Alternativ: background: #fff och box-shadow: none för ett enklare kort. */
+.metro-hero {
+  display: grid;
+  gap: var(--s2);
+  padding: clamp(1.2rem, 4vw, 2.2rem);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.72), rgba(250,228,196,.82)),
+    var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+
+/* Avståndet under huvudrubriken. Alternativ: .8rem för mer luft. */
+.metro-hero h1 { margin-bottom: .4rem; }
+/* Introtextens maximala radlängd. Alternativ: 65ch för bredare text. */
+.metro-hero__intro { max-width: 54ch; margin: 0; }
+
+/* Klockans blå ruta. background styr bakgrundsfärgen och text-align centreringen.
+   Alternativ: text-align: left eller background: var(--teak). */
+.metro-clock {
+  display: grid;
+  align-content: center;
+  gap: .25rem;
+  padding: var(--s2);
+  background: var(--comic-blue);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  color: #fff;
+  text-align: center;
+}
+
+/* Själva klockslaget: font-family styr typsnitt och font-size storlek.
+   clamp(minimum, följsam storlek, maximum) gör texten responsiv.
+   Alternativ: font-family: 'Anton', sans-serif; font-size: 3rem. */
+.metro-clock strong {
+  color: #fff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: clamp(2rem, 11vw, 4.4rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* Den mindre texten i klockrutan. Sista värdet .86 styr genomskinligheten. */
+.metro-clock span { color: rgba(255,255,255,.86); }
+
+/* Grundutseende för statusmeddelanden medan väderdata hämtas.
+   Alternativ: border: 1px solid var(--border) för en tunnare ram. */
+.metro-status {
+  padding: var(--s2);
+  background: #fff5c7;
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* Färger för fel respektive varning. Dessa skriver över grundfärgerna ovan. */
+.metro-status--error { background: #fee2e2; color: #8b1d1d; }
+.metro-status--warning { background: #fff1c2; color: #694d00; }
+
+/* Den blinkande punkten vid laddning. width/height styr storleken och
+   1.25s i animation styr hastigheten. Alternativ: 2s för långsammare puls. */
+.metro-status__pulse {
+  display: inline-block;
+  width: .75rem;
+  height: .75rem;
+  margin-right: .45rem;
+  background: var(--comic-blue);
+  border-radius: 50%;
+  animation: metro-pulse 1.25s ease-in-out infinite;
+}
+
+/* Pulsens svagaste/minsta läge mitt i animationen.
+   Alternativ: opacity: .6 och scale(.9) för en diskretare puls. */
+@keyframes metro-pulse {
+  50% { opacity: .35; transform: scale(.8); }
+}
+
+/* Mellanrum mellan allt väderinnehåll efter hero/status. */
+.metro-content {
+  display: grid;
+  gap: var(--s4);
+}
+
+/* Gömmer innehållet när HTML-attributet hidden finns, t.ex. under laddning. */
+.metro-content[hidden] { display: none; }
+
+/* Huvudkortet för aktuellt väder. padding styr luft och background kortfärg.
+   Alternativ: background: var(--paper) eller box-shadow: none. */
+.metro-now {
+  display: grid;
+  gap: var(--s2);
+  padding: clamp(1.1rem, 4vw, 2rem);
+  background: #fff;
+  border: 2px solid var(--ink);
+  box-shadow: var(--shadow-card);
+}
+
+/* Lägger väderikon och temperatur bredvid varandra och centrerar dem på höjden.
+   Alternativ: flex-direction: column för att stapla dem. */
+.metro-now__primary {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+/* Rund väderikon: 4.5rem styr cirkelns bredd/höjd och 2.5rem ikonstorleken.
+   Alternativ: 6rem på width/height och 3rem på font-size för större ikon.
+   border-radius: 0 ger en fyrkant i stället för en cirkel. */
+.metro-weather-symbol {
+  display: grid;
+  flex: 0 0 4.5rem;
+  width: 4.5rem;
+  height: 4.5rem;
+  place-items: center;
+  background: var(--gold);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  font-size: 2.5rem;
+}
+
+/* Liten etikett ovanför temperatur/rubriker.
+   font-size styr storlek, letter-spacing bokstavsavstånd och uppercase versaler.
+   Alternativ: text-transform: none för normal skiftläge. */
+.metro-eyebrow {
+  margin: 0 0 .2rem;
+  color: var(--ink-muted);
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+    font-family: 'consolas', system-ui, sans-serif;
+}
+
+/* STORA AKTUELLA TEMPERATUREN, exempelvis 26,2°C.
+   color       = textfärg
+   font-family = typsnitt; nu Bangers med reservtypsnitt
+   font-size   = minst 1rem, följsamt 4vw, högst 2rem
+   letter-spacing = lite extra mellanrum mellan tecknen; alternativ .05em för mer luft
+   line-height = vertikalt utrymme runt texten
+   Alternativ fast storlek: font-size: 4rem.
+   Alternativt typsnitt: font-family: 'Bangers', system-ui, sans-serif. */
+.metro-temperature {
+  display: block;
+  color: var(--comic-blue);
+  font-family: 'bangers', system-ui, sans-serif;
+  font-size: clamp(1rem, 4vw, 2rem);
+  letter-spacing: .09em;
+  line-height: .95;
+}
+
+/* Väderbeskrivning, t.ex. "Mulet". 700 = fet; alternativ 400 = normal. */
+.metro-description { margin: .35rem 0 0; font-weight: 700; font-family: consolas; letter-spacing: .08em;}
+/* Staplar sammanfattningens textrader och centrerar gruppen vertikalt. */
+.metro-now__summary { display: grid; align-content: center; gap: .35rem; }
+/* Tar bort webbläsarens standardmarginal runt stycken i sammanfattningen. */
+.metro-now__summary p { margin: 0; }
+
+
+/* Reserådet under aktuellt väder.
+   font-family/font-size styr handskriftsstilen och border-left färgmarkeringen.
+   Alternativ: font-family: inherit; font-size: 1rem för vanlig brödtext. */
+.metro-travel-note {
+  margin-top: .45rem !important;
+  padding: .75rem 1rem;
+  background: var(--paper-dark);
+  border-left: 4px solid var(--comic-blue);
+  color: var(--ink) !important;
+  font-family: 'Caveat', cursive;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+/* Tillåter vädersektioner att krympa i ett grid utan att skapa sidscrollning. */
+.metro-section {
+  min-width: 0;
+}
+
+/* Rubrikrad för varje sektion: rubrik till vänster och extrainfo till höger.
+   flex-wrap gör att de bryts till två rader på smala skärmar. */
+.metro-section__heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s1);
+  margin-bottom: var(--s2);
+}
+
+/* Tar bort standardmarginal runt sektionsrubriker. */
+.metro-section__heading h2 { margin: 0; }
+/* Luft under den lilla kicker-texten. */
+.metro-section__heading .kicker { margin-bottom: .45rem; }
+/* Källtid och scrolltips: dämpad färg och liten text. Alternativ: 1rem. */
+.metro-source-time, .metro-scroll-hint { color: var(--ink-muted); font-size: .82rem; }
+
+/* Detaljrutor för vind, luftfuktighet, nederbörd osv.
+   Mobil har två lika breda kolumner. Alternativ: repeat(1, 1fr) för en kolumn. */
+.metro-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+  margin: 0;
+}
+
+/* Utseendet på varje enskild detaljruta. .78 anger vit bakgrund med 78 % opacitet. */
+.metro-detail-grid > div {
+  min-width: 0;
+  padding: .9rem;
+  background: rgba(255,255,255,.78);
+  border: 1px solid var(--border);
+}
+
+/* Etiketterna i detalj-, tim- och dagskort, exempelvis "Vind" och "Luftfuktighet".
+   Alternativ: font-size: .85rem; text-transform: none. */
+.metro-detail-grid dt,
+.metro-hour-card dt,
+.metro-day-card dt {
+  color: var(--ink-muted);
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Själva mätvärdet i detaljrutan. 800 ger extra fet text.
+   Alternativ: font-size: 1.2rem och font-weight: 700. */
+.metro-detail-grid dd {
+  margin: .2rem 0 0;
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+/* VÅGRÄT TIMPROGNOS.
+   grid-auto-columns styr kortbredden; 72vw visar en del av nästa kort på mobil.
+   overflow-x: auto gör raden scrollbar och scroll-snap hjälper korten att stanna rätt.
+   Alternativ: grid-auto-columns: 100% för ett helt kort per vy. */
+.metro-hourly {
+  display: grid;
+  grid-auto-columns: minmax(12.5rem, 72vw);
+  grid-auto-flow: column;
+  gap: var(--s1);
+  overflow-x: auto;
+  padding: .2rem .25rem 1rem;
+  scroll-snap-type: x proximity;
+  scrollbar-color: var(--comic-blue) var(--paper-dark);
+}
+
+/* Tydlig fokusram för tangentbordsanvändare. */
+.metro-hourly:focus-visible {
+  outline: 3px solid var(--comic-blue);
+  outline-offset: 4px;
+}
+
+/* Ett timprognoskort. gap/padding styr luft, background färg och shadow djup.
+   Alternativ: border-radius: 8px för rundade hörn. */
+.metro-hour-card {
+  display: grid;
+  align-content: start;
+  gap: .55rem;
+  padding: var(--s2);
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  scroll-snap-align: start;
+}
+
+/* Markerar kortet för den aktuella timmen med tjockare blå ram. */
+.metro-hour-card--current { border: 2px solid var(--comic-blue); }
+/* Timrubrik/tid. Alternativ: font-size: 1.15rem. */
+.metro-hour-card h3 { margin: 0; font-size: 1rem; }
+/* Vädersymbolens storlek i timkort. */
+.metro-hour-card__symbol { font-size: 2rem; }
+/* Temperaturens färg och storlek i timkort. Alternativ: font-size: 2.4rem. */
+.metro-hour-card__temperature { color: var(--comic-blue); font-size: 2rem; }
+/* Beskrivningens minimihöjd håller korten jåmna även vid två textrader. */
+.metro-hour-card__description { min-height: 2.8em; margin: 0; font-size: .86rem; }
+/* Staplar detaljraderna inne i tim- och dagskort. */
+.metro-hour-card__details, .metro-day-card__details { display: grid; gap: .35rem; margin: .25rem 0 0; }
+
+/* Placerar detaljens etikett till vänster och värde till höger. */
+.metro-hour-card__details > div,
+.metro-day-card__details > div {
+  display: flex;
+  justify-content: space-between;
+  gap: .6rem;
+  border-top: 1px dashed var(--border);
+  padding-top: .35rem;
+}
+
+/* Mätvärden i tim- och dagskort. Alternativ: font-size: .9rem. */
+.metro-hour-card dd, .metro-day-card dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: .78rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* Rutnätet som innehåller alla dagskort. Antal kolumner ändras i mediareglerna. */
+.metro-daily {
+  display: grid;
+  gap: var(--s2);
+}
+
+/* Ett dagsprognoskort. Alternativ: background: #fff eller border: 2px solid var(--ink). */
+.metro-day-card {
+  padding: var(--s2);
+  background: rgba(255,255,255,.82);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+}
+
+/* Lägger dagens rubrik och vädersymbol på varsin sida av kortet. */
+.metro-day-card__heading {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s1);
+}
+
+/* Dagens rubrik. */
+.metro-day-card__heading h3 { margin: 0; }
+/* Extra datumtext, men inte vädersymbolen. */
+.metro-day-card__heading span:not(.metro-day-card__symbol) { color: var(--ink-muted); font-size: .78rem; }
+/* Vädersymbolens storlek i dagskort. Alternativ: 2.5rem. */
+.metro-day-card__symbol { font-size: 2rem; }
+/* Dagens väderbeskrivning; min-height håller kortens innehåll i linje. */
+.metro-day-card__description { min-height: 2.8em; margin: .5rem 0; font-size: .86rem; }
+/* Dagens min-/maxtemperatur. Alternativ: font-size: 2rem eller color: var(--teak). */
+.metro-day-card__temperature { margin: 0; color: var(--comic-blue); font-size: 1.55rem; font-weight: 900; }
+
+/* Källhänvisning under prognosen. */
+.metro-attribution {
+  padding-top: var(--s2);
+  border-top: 1px solid var(--border);
+  color: var(--ink-muted);
+  font-size: .78rem;
+}
+
+/* Länkens färg och fetstil i källhänvisningen. */
+.metro-attribution a { color: var(--teak); font-weight: 700; }
+
+/* Liten kompakt väderwidget, exempelvis i header eller annan sidyta.
+   flex-wrap låter innehållet brytas på smala ytor och min-height 44px ger bra tryckyta.
+   Alternativ: display: flex; width: 100% för en fullbred widget. */
+.chiangmai-mini-widget {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .4rem .65rem;
+  min-height: 44px;
+  padding: .45rem .7rem;
+  background: rgba(255,255,255,.9);
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  color: var(--ink);
+  font-size: .78rem;
+  text-decoration: none;
+}
+
+/* Framhävd text, vanligen temperatur, i widgeten. */
+.chiangmai-mini-widget strong { color: var(--comic-blue); }
+/* Tonar ned widgeten när väderdata inte är tillgänglig. Alternativ: opacity: .5. */
+.chiangmai-mini-widget--unavailable { opacity: .72; }
+
+/* SURFPLATTA OCH STÖRRE, från 700px:
+   Hero och aktuellt väder får två kolumner, detaljer tre och dagsprognos två.
+   Alternativ: byt 700px till 800px om mobilutseendet ska behållas längre. */
+@media (min-width: 700px) {
+  .metro-hero { grid-template-columns: minmax(0, 1.2fr) minmax(18rem, .8fr); }
+  .metro-now { grid-template-columns: minmax(0, 1.1fr) minmax(16rem, .9fr); }
+  .metro-detail-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .metro-hourly { grid-auto-columns: 14rem; }
+  .metro-daily { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* STORA SKÄRMAR, från 1050px:
+   Detaljer visas i fyra kolumner och dagsprognosen i tre.
+   Första dagskortet tar två kolumner. Ta bort sista regeln för lika stora kort. */
+@media (min-width: 1050px) {
+  .metro-detail-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .metro-daily { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .metro-day-card:first-child { grid-column: span 2; }
 }
 
 @media (pointer: coarse) {

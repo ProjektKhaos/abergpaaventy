@@ -1,0 +1,2 @@
+ALTER TABLE `users`
+  ADD COLUMN `email` VARCHAR(190) NULL UNIQUE AFTER `username`;

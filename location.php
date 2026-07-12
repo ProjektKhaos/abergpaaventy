@@ -39,7 +39,7 @@ $ogImageUrl      = asset_url('assets/img/studera_fb_og.png');
     <div class="container">
 
       <p class="back-link-row">
-        <a href="<?= e(url()) ?>" class="back-link">← Alla inlägg</a>
+        <a href="<?= e(url('articles.php')) ?>" class="back-link">← Alla inlägg</a>
       </p>
       <h1><?= e($title) ?></h1>
 

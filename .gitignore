@@ -50,5 +50,9 @@ dist/
 build/
 .cache/
 
+# Runtime-cache för interna API-anrop
+storage/cache/*
+!storage/cache/.gitkeep
+
 # Local documentation/archive folder, not part of repo
 docs/

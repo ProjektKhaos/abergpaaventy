@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `id`            INT AUTO_INCREMENT PRIMARY KEY,
   `name`          VARCHAR(120) NOT NULL,
   `username`      VARCHAR(80)  NOT NULL UNIQUE,
+  `email`         VARCHAR(190) NULL UNIQUE,
   `password_hash` VARCHAR(255) NOT NULL,
   `role`          VARCHAR(40)  NOT NULL DEFAULT 'admin',
   `created_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -41,15 +42,29 @@ CREATE TABLE IF NOT EXISTS `posts` (
   `id`             INT AUTO_INCREMENT PRIMARY KEY,
   `title`          VARCHAR(255)                       NOT NULL,
   `slug`           VARCHAR(255)                       NOT NULL UNIQUE,
+  `content_type`   ENUM('article','news','cmt')       NOT NULL DEFAULT 'article',
   `intro`          TEXT                               NULL,
   `body`           MEDIUMTEXT                         NULL,
   `location`       VARCHAR(255)                       NULL,
+  `latitude`       DECIMAL(10,7)                      NULL,
+  `longitude`      DECIMAL(10,7)                      NULL,
   `post_date`      DATE                               NULL,
+  `publish_date`   DATE                               NULL,
   `status`         ENUM('draft','published')          NOT NULL DEFAULT 'draft',
   `cover_image_id` INT                                NULL,
   `created_at`     DATETIME                           NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`     DATETIME                           NULL ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (`cover_image_id`) REFERENCES `media`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `post_links` (
+  `id`         INT AUTO_INCREMENT PRIMARY KEY,
+  `post_id`    INT          NOT NULL,
+  `label`      VARCHAR(255) NOT NULL,
+  `url`        VARCHAR(2048) NOT NULL,
+  `sort_order` INT          NOT NULL DEFAULT 0,
+  FOREIGN KEY (`post_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE,
+  INDEX `idx_post_links_post_sort` (`post_id`, `sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `post_media` (
@@ -75,4 +90,10 @@ CREATE TABLE IF NOT EXISTS `post_tags` (
   PRIMARY KEY (`post_id`, `tag_id`),
   FOREIGN KEY (`post_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`tag_id`)  REFERENCES `tags`(`id`)  ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `site_settings` (
+  `setting_key`   VARCHAR(120) NOT NULL PRIMARY KEY,
+  `setting_value` TEXT         NULL,
+  `updated_at`    DATETIME     NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

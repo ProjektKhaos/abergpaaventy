@@ -1,37 +1,22 @@
 <?php
-// Senast uppdaterad: 2026-05-28 08:05 | av: KlⒶssⓔ & Ⓐberg
-// category.php – visar inlägg i en kategori Ⓐ Style
+// articles.php – lista alla publicerade artiklar Ⓐ Style
 
 require_once __DIR__ . '/app/config.php';
 require_once __DIR__ . '/app/db.php';
 require_once __DIR__ . '/app/helpers.php';
 require_once __DIR__ . '/app/public_layout.php';
+require_once __DIR__ . '/app/Post.php';
 require_once __DIR__ . '/app/Category.php';
 
-$slug = trim($_GET['slug'] ?? '');
-
-if (!$slug) {
-    header('Location: ' . url());
-    exit;
-}
-
+$post_model     = new Post($pdo);
 $category_model = new Category($pdo);
-$category       = $category_model->get_by_slug($slug);
 
-if (!$category) {
-    http_response_code(404);
-    $posts = [];
-    $title = 'Kategori hittades inte';
-} else {
-    $posts = $category_model->get_posts($category['id']);
-    $title = $category['name'];
-}
+$posts      = $post_model->get_published(100);
+$categories = $category_model->get_all_with_count();
 
-$pageTitle       = $title . ' - Hasse i Thailand';
-$pageDescription = $category
-    ? 'Inlägg i kategorin ' . $category['name'] . ' från Hasses tid i Thailand.'
-    : 'Kategorin hittades inte.';
-$canonicalUrl    = query_url('category.php', ['slug' => $slug]);
+$pageTitle       = 'Artiklar - Hasse i Thailand';
+$pageDescription = 'Alla publicerade artiklar från Hasses tid i Thailand.';
+$canonicalUrl    = url('articles.php');
 $ogImageUrl      = asset_url('assets/img/studera_fb_og.png');
 ?>
 <!doctype html>
@@ -43,20 +28,28 @@ $ogImageUrl      = asset_url('assets/img/studera_fb_og.png');
   <link rel="stylesheet" href="<?= e(asset_url('assets/style.css')) ?>">
 </head>
 <body>
-  <?php public_header('home'); ?>
+  <?php public_header('articles'); ?>
 
   <main id="main-content" class="posts-section">
     <div class="container">
+      <h1>Artiklar</h1>
 
-      <p class="back-link-row">
-        <a href="<?= e(url('articles.php')) ?>" class="back-link">← Alla inlägg</a>
-      </p>
-      <h1><?= e($title) ?></h1>
+      <?php if (!empty($categories)): ?>
+      <div class="tags tags--spaced">
+        <?php foreach ($categories as $cat): ?>
+          <?php if ($cat['post_count'] > 0): ?>
+          <a href="<?= e(query_url('category.php', ['slug' => $cat['slug']])) ?>" class="tag">
+            <?= e($cat['name']) ?> [ <?= (int)$cat['post_count'] ?> ]
+          </a>
+          <?php endif; ?>
+        <?php endforeach; ?>
+      </div>
+      <?php endif; ?>
 
       <?php if (empty($posts)): ?>
         <div class="empty-state">
-          <div class="empty-state__icon">📂</div>
-          <p>Inga publicerade inlägg i den här kategorin ännu.</p>
+          <div class="empty-state__icon">📝</div>
+          <p>Inga publicerade artiklar ännu.</p>
         </div>
       <?php else: ?>
         <div class="posts-grid">
@@ -95,11 +88,10 @@ $ogImageUrl      = asset_url('assets/img/studera_fb_og.png');
           <?php endforeach; ?>
         </div>
       <?php endif; ?>
-
     </div>
   </main>
-  <?php public_footer(); ?>
 
+  <?php public_footer(); ?>
   <script src="<?= e(asset_url('assets/script.js')) ?>" defer></script>
 </body>
 </html>
